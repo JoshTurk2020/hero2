@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dungeon Escape Adventure</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #game-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #health-bar img {
+            width: 30px;
+            height: 30px;
+        }
+        #game-content {
+            margin-top: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Dungeon Escape Adventure</h1>
+        <div id="health-bar">
+            <img src="heart.png" alt="Heart 1">
+            <img src="heart.png" alt="Heart 2">
+            <img src="heart.png" alt="Heart 3">
+        </div>
+        <div id="game-content"></div>
+        <div id="game-controls"></div>
+    </div>
+    <script>
+        const gameContent = document.getElementById('game-content');
+        const gameControls = document.getElementById('game-controls');
+        let currentScene = 0;
+        let heroHealth = 3;
+
+        const scenes = [
+            {
+                text: "You wake up in a dark dungeon with no memory of how you got there. You see a door ahead of you.",
+                choices: [
+                    { text: "Open the door", nextScene: 1 },
+                    { text: "Look around", nextScene: 2 }
+                ]
+            },
+            {
+                text: "You open the door and find yourself face to face with a goblin!",
+                choices: [
+                    { text: "Fight the goblin", nextScene: 3 },
+                    { text: "Run away", nextScene: 4 }
+                ]
+            },
+            {
+                text: "You look around and find a rusty key on the ground.",
+                choices: [
+                    { text: "Pick up the key", nextScene: 5 },
+                    { text: "Ignore the key and open the door", nextScene: 1 }
+                ]
+            },
+            {
+                text: "You engage in a fierce battle with the goblin. The goblin asks, 'What is the correct pronoun to use in this sentence? _____ went to the store.'",
+                choices: [
+                    { text: "He", nextScene: 6 },
+                    { text: "Him", nextScene: 7 }
+                ]
+            },
+            {
+                text: "You run away from the goblin and find yourself in a dimly lit corridor. You see two paths ahead.",
+                choices: [
+                    { text: "Take the left path", nextScene: 8 },
+                    { text: "Take the right path", nextScene: 9 }
+                ]
+            },
+            {
+                text: "You pick up the rusty key and notice a locked door nearby.",
+                choices: [
+                    { text: "Unlock the door", nextScene: 10 },
+                    { text: "Continue exploring", nextScene: 11 }
+                ]
+            },
+            {
+                text: "Correct! The goblin is defeated, and you remember a piece of your identity: you are a brave warrior. You see two doors ahead.",
+                choices: [
+                    { text: "Go through the left door", nextScene: 12 },
+                    { text: "Go through the right door", nextScene: 13 }
+                ]
+            },
+            {
+                text: "Incorrect. You lose a heart. The goblin asks another question: 'Which word is spelled correctly?'",
+                choices: [
+                    { text: "Separate", nextScene: 6 },
+                    { text: "Seperate", nextScene: 14 }
+                ]
+            },
+            {
+                text: "You take the left path and encounter a skeleton!",
+                choices: [
+                    { text: "Fight the skeleton", nextScene: 15 },
+                    { text: "Sneak past the skeleton", nextScene: 16 }
+                ]
+            },
+            {
+                text: "You take the right path and find a treasure chest!",
+                choices: [
+                    { text: "Open the chest", nextScene: 17 },
+                    { text: "Ignore the chest", nextScene: 18 }
+                ]
+            },
+            {
+                text: "You unlock the door and find a mysterious glowing orb inside.",
+                choices: [
+                    { text: "Touch the orb", nextScene: 19 },
+                    { text: "Leave it alone and keep exploring", nextScene: 11 }
+                ]
+            },
+            {
+                text: "As you continue exploring, you find a hidden passage leading to an underground cave.",
+                choices: [
+                    { text: "Enter the cave", nextScene: 20 },
+                    { text: "Stay in the corridor", nextScene: 21 }
+                ]
+            },
+            {
+                text: "You go through the left door and find a spiral staircase leading up.",
+                choices: [
+                    { text: "Climb the stairs", nextScene: 22 },
+                    { text: "Stay on this level", nextScene: 23 }
+                ]
+            },
+            {
+                text: "You go through the right door and find a beautiful garden filled with strange flowers.",
+                choices: [
+                    { text: "Explore the garden", nextScene: 24 },
+                    { text: "Return to the previous room", nextScene: 6 }
+                ]
+            },
+            {
+                text: "The goblin cackles as you choose the wrong spelling. You lose another heart. The goblin asks another question: 'Which sentence is grammatically correct?'",
+                choices: [
+                    { text: "She don't like apples.", nextScene: 14 },
+                    { text: "She doesn't like apples.", nextScene: 6 }
+                ]
+            },
+            {
+                text: "You fight the skeleton, but it is too strong! You barely escape with your life, losing a heart in the process. You stumble upon a hidden passage.",
+                choices: [
+                    { text: "Enter the passage", nextScene: 20 },
+                    { text: "Stay and rest", nextScene: 21 }
+                ]
+            },
+            {
+                text: "You sneak past the skeleton successfully and find yourself in a room filled with ancient artifacts.",
+                choices: [
+                    { text: "Examine the artifacts", nextScene: 25 },
+                    { text: "Keep moving", nextScene: 26 }
+                ]
+            },
+            {
+                text: "You open the chest and find a magical sword inside.",
+                choices: [
+                    { text: "Take the sword", nextScene: 27 },
+                    { text: "Leave the sword and keep exploring", nextScene: 18 }
+                ]
+            },
+            {
+                text: "You ignore the chest and keep walking, but you feel a strange presence following you.",
+                choices: [
+                    { text: "Turn around", nextScene: 28 },
+                    { text: "Keep moving forward", nextScene: 29 }
+                ]
+            },
+            {
+                text: "You touch the orb and are teleported to a mystical forest.",
+                choices: [
+                    { text: "Explore the forest", nextScene: 30 },
+                    { text: "Find a way back", nextScene: 31 }
+                ]
+            },
+            {
+                text: "You enter the cave and find a dragon sleeping inside.",
+                choices: [
+                    { text: "Approach the dragon", nextScene: 32 },
+                    { text: "Quietly leave the cave", nextScene: 33 }
+                ]
+            },
+            {
+                text: "You stay in the corridor and find a hidden trapdoor under a loose tile.",
+                choices: [
+                    { text: "Open the trapdoor", nextScene: 34 },
+                    { text: "Ignore the trapdoor", nextScene: 21 }
+                ]
+            },
+            {
+                text: "You climb the stairs and find yourself on a balcony overlooking the dungeon.",
+                choices: [
+                    { text: "Look for a way down", nextScene: 35 },
+                    { text: "Go back down the stairs", nextScene: 12 }
+                ]
+            },
+            {
+                text: "You stay on this level and find a room with a large mirror. The mirror shows your reflection, but something is off.",
+                choices: [
+                    { text: "Investigate the mirror", nextScene: 36 },
+                    { text: "Leave the room", nextScene: 6 }
+                ]
+            },
+            {
+                text: "You explore the garden and find a hidden path leading to a secret grotto.",
+                choices: [
+                    { text: "Enter the grotto", nextScene: 37 },
+                    { text: "Return to the previous room", nextScene: 13 }
+                ]
+            },
+            {
+                text: "You examine the artifacts and find a scroll with ancient writing.",
+                choices: [
+                    { text: "Read the scroll", nextScene: 38 },
+                    { text: "Take the scroll and leave", nextScene: 26 }
+                ]
+            },
+            {
+                text: "You keep moving and find a room filled with glittering treasures.",
+                choices: [
+                    { text: "Take some treasure", nextScene: 39 },
+                    { text: "Ignore the treasure", nextScene: 40 }
+                ]
+            },
+            {
+                text: "You take the sword and feel a surge of power. You now have the ability to defeat any enemy you face.",
+                choices: [
+                    { text: "Continue exploring", nextScene: 18 },
+                    { text: "Go back and fight the goblin", nextScene: 3 }
+                ]
+            },
+            {
+                text: "You turn around and see a shadowy figure approaching you.",
+                choices: [
+                    { text: "Confront the figure", nextScene: 41 },
+                    { text: "Run away", nextScene: 42 }
+                ]
+            },
+            {
+                text: "You keep moving forward and find a door leading to a bright room.",
+                choices: [
+                    { text: "Enter the room", nextScene: 43 },
+                    { text: "Stay in the corridor", nextScene: 44 }
+                ]
+            },
+            {
+                text: "You explore the forest and find a magical creature offering you a choice: power or wisdom.",
+                choices: [
+                    { text: "Choose power", nextScene: 45 },
+                    { text: "Choose wisdom", nextScene: 46 }
+                ]
+            },
+            {
+                text: "You try to find a way back and stumble upon an ancient ruin.",
+                choices: [
+                    { text: "Explore the ruin", nextScene: 47 },
+                    { text: "Keep searching for a way back", nextScene: 48 }
+                ]
+            },
+            {
+                text: "You approach the dragon and it opens one eye, looking at you with curiosity.",
+                choices: [
+                    { text: "Speak to the dragon", nextScene: 49 },
+                    { text: "Attack the dragon", nextScene: 50 }
+                ]
+            },
+            {
+                text: "You quietly leave the cave and find yourself in a lush valley.",
+                choices: [
+                    { text: "Explore the valley", nextScene: 51 },
+                    { text: "Find a way back to the dungeon", nextScene: 52 }
+                ]
+            },
+            {
+                text: "You open the trapdoor and see a ladder leading down into darkness.",
+                choices: [
+                    { text: "Climb down the ladder", nextScene: 53 },
+                    { text: "Close the trapdoor and stay in the corridor", nextScene: 21 }
+                ]
+            },
+            {
+                text: "You look for a way down from the balcony and see a rope hanging nearby.",
+                choices: [
+                    { text: "Use the rope to climb down", nextScene: 54 },
+                    { text: "Go back down the stairs", nextScene: 12 }
+                ]
+            },
+            {
+                text: "You investigate the mirror and are suddenly pulled into it, finding yourself in a mirrored world.",
+                choices: [
+                    { text: "Explore the mirrored world", nextScene: 55 },
+                    { text: "Find a way back to the real world", nextScene: 56 }
+                ]
+            },
+            {
+                text: "You enter the grotto and find a hidden sanctuary with a healing fountain.",
+                choices: [
+                    { text: "Drink from the fountain", nextScene: 57 },
+                    { text: "Leave the grotto", nextScene: 24 }
+                ]
+            },
+            {
+                text: "You read the scroll and gain knowledge of an ancient spell.",
+                choices: [
+                    { text: "Cast the spell", nextScene: 58 },
+                    { text: "Keep the knowledge for later", nextScene: 26 }
+                ]
+            },
+            {
+                text: "You take some treasure and feel a curse taking hold of you.",
+                choices: [
+                    { text: "Fight the curse", nextScene: 59 },
+                    { text: "Accept the curse", nextScene: 60 }
+                ]
+            },
+            {
+                text: "You ignore the treasure and find a secret door behind a tapestry.",
+                choices: [
+                    { text: "Enter the secret door", nextScene: 61 },
+                    { text: "Keep exploring", nextScene: 26 }
+                ]
+            },
+            {
+                text: "You confront the shadowy figure and it reveals itself to be a lost soul seeking help.",
+                choices: [
+                    { text: "Help the lost soul", nextScene: 62 },
+                    { text: "Ignore the soul and move on", nextScene: 42 }
+                ]
+            },
+            {
+                text: "You run away from the figure and find a hidden room filled with potions.",
+                choices: [
+                    { text: "Drink a potion", nextScene: 63 },
+                    { text: "Leave the potions and keep moving", nextScene: 44 }
+                ]
+            },
+            {
+                text: "You enter the bright room and find an exit leading outside.",
+                choices: [
+                    { text: "Exit the dungeon", nextScene: 64 },
+                    { text: "Stay and explore more", nextScene: 44 }
+                ]
+            },
+            {
+                text: "You stay in the corridor and find a magical staff lying on the ground.",
+                choices: [
+                    { text: "Pick up the staff", nextScene: 65 },
+                    { text: "Leave the staff and move on", nextScene: 21 }
+                ]
+            },
+            {
+                text: "You choose power and feel a surge of strength coursing through your veins.",
+                choices: [
+                    { text: "Use your newfound power", nextScene: 66 },
+                    { text: "Continue exploring", nextScene: 30 }
+                ]
+            },
+            {
+                text: "You choose wisdom and gain profound insight into the world around you.",
+                choices: [
+                    { text: "Use your newfound wisdom", nextScene: 67 },
+                    { text: "Continue exploring", nextScene: 30 }
+                ]
+            },
+            {
+                text: "You explore the ruin and find an ancient artifact glowing with energy.",
+                choices: [
+                    { text: "Take the artifact", nextScene: 68 },
+                    { text: "Leave the artifact and keep exploring", nextScene: 48 }
+                ]
+            },
+            {
+                text: "You keep searching for a way back and find a portal shimmering in the distance.",
+                choices: [
+                    { text: "Enter the portal", nextScene: 69 },
+                    { text: "Ignore the portal and keep searching", nextScene: 48 }
+                ]
+            },
+            {
+                text: "You speak to the dragon and it offers you a quest to prove your worth.",
+                choices: [
+                    { text: "Accept the quest", nextScene: 70 },
+                    { text: "Decline the quest", nextScene: 51 }
+                ]
+            }
+        ];
+
+        function showScene(sceneIndex) {
+            const scene = scenes[sceneIndex];
+            gameContent.innerHTML = `<p>${scene.text}</p>`;
+            gameControls.innerHTML = "";
+            scene.choices.forEach((choice, index) => {
+                const button = document.createElement('button');
+                button.innerText = choice.text;
+                button.addEventListener('click', () => showScene(choice.nextScene));
+                gameControls.appendChild(button);
+            });
+        }
+
+        showScene(currentScene);
+    </script>
+</body>
+</html>
