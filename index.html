@@ -8,6 +8,12 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            background-image: url('dungeon.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
         }
         #game-container {
             max-width: 600px;
@@ -38,6 +44,10 @@
         <div id="game-content"></div>
         <div id="game-controls"></div>
     </div>
+    <audio id="background-music" loop>
+        <source src="dungeon.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
     <script>
         const gameContent = document.getElementById('game-content');
         const gameControls = document.getElementById('game-controls');
