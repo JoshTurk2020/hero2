@@ -185,17 +185,30 @@
             showScene(currentScene);
         }
      
-     function showScene(sceneIndex) {
-            const scene = scenes[sceneIndex];
-            gameContent.innerHTML = `<p>${scene.text}</p>`;
-            gameControls.innerHTML = "";
-            scene.choices.forEach((choice, index) => {
-                const button = document.createElement('button');
-                button.innerText = choice.text;
-                button.addEventListener('click', () => showScene(choice.nextScene));
-                gameControls.appendChild(button);
+    function showScene(sceneIndex) {
+        const scene = scenes[sceneIndex];
+        gameContent.innerHTML = `
+            <p>${scene.text}</p>
+            <img src="${scene.image}" alt="Scene Image">
+        `;
+        gameControls.innerHTML = "";
+        scene.choices.forEach((choice, index) => {
+            const button = document.createElement('button');
+            button.innerText = choice.text;
+            button.addEventListener('click', () => {
+                if (choice.correctAnswer === false) {
+                    heroHealth--;
+                    updateHealthBar();
+                    if (heroHealth === 0) {
+                        endGame();
+                        return;
+                    }
+                }
+                showScene(choice.nextScene);
             });
-        }
+            gameControls.appendChild(button);
+        });
+    }
 
         showScene(currentScene);
     </script>
